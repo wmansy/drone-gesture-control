@@ -10,18 +10,12 @@ import time
 
 
 def eql(num1, num2, err=10):
-    """
-    функция для сравнивания двух чисел с погрешностью
-    """
     if num1 < 0 or num2 < 0:
         return True
     return True if abs(num1 - num2) <= err else False
 
 
 def eql_all(left=None, right=None):  # , neck=[]):
-    """
-    функция для быстрого сравнения всех прописанных векторов
-    """
     ans = True
     if left:
         ans = (eql(parts.left_clavicle.angle, left[0]) and
@@ -68,17 +62,10 @@ def convert_points(points):
     """
     converted_points = []
 
-    # генерация базовой точки (между лопатками)
-    # х - (х левой лопатки + х правой лопатки) / 2
-    # у - (у левой лопатки + у правой лопатки) / 2
-    # остальное по аналогии
     base_point = Point(x=round(IMGW * (points[12].x + points[11].x) // 2),
                        y=round(IMGH * (points[12].y + points[11].y) // 2),
                        z=(points[12].z + points[11].z) / 2,
                        visibility=(points[12].visibility + points[11].visibility) / 2)
-    # непосредственная конвертация координат точек путем умножения
-    # относительной координаты на ширину(высоту) изображения
-    # (z и видимость остаются без изменений)
     for p in points:
         converted_points.append(Point(x=round(IMGW * p.x),
                                       y=round(IMGH * p.y),
@@ -94,18 +81,13 @@ def generate_parts_vectors(pts):
     Принимает набор точек, а возвращает вектора.
     """
     j = {}
-    # проход по элементам словаря с именами и точками частей тела
     for joint in body_parts.items():
-        # 2 точки, образующие часть тела
         pos = joint[1]
-        # из переданного набора найденных точек скелета выбираются эти 2 и считается вектор
         vec_x = pts[pos[1]].x - pts[pos[0]].x
         vec_y = pts[pos[1]].y - pts[pos[0]].y
-        # сохранение вектора с именем части тела
         j.update({
             joint[0]: Part(vec_x, vec_y, ang([vec_x, vec_y]))
         })
-    # конвертация в массив, к элементам которого можно обращаться через точку
     j = Parts(**j)
     return j
 
@@ -273,7 +255,7 @@ def main():
 
 
 if __name__ == '__main__':
-    useIntegratedCam = False
+    useIntegratedCam = True
     cordX = .0
     cordY = .0
     cordZ = 1.5
