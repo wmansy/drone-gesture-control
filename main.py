@@ -18,15 +18,17 @@ def eql(num1, num2, err=10):
 def eql_all(left=None, right=None):  # , neck=[]):
     ans = True
     if left:
-        ans = (eql(parts.left_clavicle.angle, left[0]) and
-               eql(parts.left_arm.angle, left[1]) and
-               eql(parts.left_forearm.angle, left[2]) and
-               ans)
+        ans = (
+                eql(body.left_collarbone.angle, left[0]) and
+                eql(body.left_arm.angle, left[1]) and
+                eql(body.left_forearm.angle, left[2]) and
+                ans)
     if right:
-        ans = (eql(parts.right_clavicle.angle, right[0]) and
-               eql(parts.right_arm.angle, right[1]) and
-               eql(parts.right_forearm.angle, right[2]) and
-               ans)
+        ans = (
+                eql(body.right_collarbone.angle, right[0]) and
+                eql(body.right_arm.angle, right[1]) and
+                eql(body.right_forearm.angle, right[2]) and
+                ans)
     # if neck:
     #     ans = (eq(parts.neck.angle) and
     #            ans)
@@ -129,11 +131,11 @@ def detect():
 
 
 def bpla(converted_points):
-    # global cordX, cordY, cordZ, pose_detected
-    # global yaw_err, yaw_errold, yaw_kp, yaw_kd, yaw_k
-    # global z_err, z_errold, z_kp, z_kd
-    # global y_err, y_errold, y_kp, y_kd
-    # global yaw
+    global cordX, cordY, cordZ, pose_detected
+    global yaw_err, yaw_errold, yaw_kp, yaw_kd, yaw_k
+    global z_err, z_errold, z_kp, z_kd
+    global y_err, y_errold, y_kp, y_kd
+    global yaw
     global cordX, cordY, cordZ, yaw, pose_detected
     global yaw_errold, z_errold, y_errold
 
@@ -157,7 +159,7 @@ def bpla(converted_points):
 
 def main():
     global cap, pioneer
-    global pose_detected, parts, Point, IMGW, IMGH, cordY, cordZ, cordX
+    global pose_detected, body, Point, IMGW, IMGH, cordY, cordZ, cordX
 
     take_photo_time = -1
     pose_detected = -1
@@ -184,7 +186,7 @@ def main():
             else:
                 img = pioneer.get_raw_video_frame()
                 frame = cv2.imdecode(np.frombuffer(img, dtype=np.uint8), cv2.IMREAD_COLOR)
-                #print("\n\n\n\n\n\n\n\n\nfgffgfggfgfg")
+                # print("\n\n\n\n\n\n\n\n\nfgffgfggfgfg")
             frame = cv2.flip(frame, 1)
 
             IMGW = np.shape(frame)[1]
@@ -195,7 +197,7 @@ def main():
             if detected_skeletons.pose_landmarks is not None:
 
                 converted_points = convert_points(detected_skeletons.pose_landmarks.landmark)
-                parts = generate_parts_vectors(converted_points)
+                body = generate_parts_vectors(converted_points)
 
                 cv2.circle(frame, (converted_points[33].x, converted_points[33].y), 4, (255, 0, 0), 3)
 
@@ -219,7 +221,7 @@ def main():
 
             cv2.imshow("frame", frame)
 
-            key = cv2.waitKey(1)
+            key = cv2.waitKey(1) & 0xff
 
             if key == ord('q') or key == 27:
                 if not useIntegratedCam:
@@ -242,6 +244,8 @@ def main():
                 pioneer.takeoff()
             elif key == ord('p'):
                 cv2.imwrite("image", frame)
+            # elif key == ord('u'):
+            #     cordZ += stepXY
 
     except Exception as e:
         print('Ошибка:\n', traceback.format_exc())
@@ -255,13 +259,13 @@ def main():
 
 
 if __name__ == '__main__':
-    useIntegratedCam = True
+    useIntegratedCam = False
     cordX = .0
     cordY = .0
     cordZ = 1.5
     yaw = np.radians(0)
 
-    stepXY = 0.2
+    stepXY = 0.5
 
     yaw_err = 0
     yaw_errold = 0
@@ -280,10 +284,10 @@ if __name__ == '__main__':
     y_kd = .01
 
     body_parts = {"neck": [33, 0],
-                  "left_clavicle": [33, 12],
+                  "left_collarbone": [33, 12],
                   "left_arm": [12, 14],
                   "left_forearm": [14, 16],
-                  "right_clavicle": [33, 11],
+                  "right_collarbone": [33, 11],
                   "right_arm": [11, 13],
                   "right_forearm": [13, 15]}
 
